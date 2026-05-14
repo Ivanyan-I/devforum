@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String?
+  email     String    @unique
+  image     String?
+  createdAt DateTime  @default(now())
+
+  posts     Post[]
+  comments  Comment[]
+  votes     Vote[]
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  posts Post[]
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  topic     Topic     @relation(fields: [topicId], references: [id])
+  topicId   String
+
+  comments  Comment[]
+  votes     Vote[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  createdAt DateTime  @default(now())
+
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  post      Post      @relation(fields: [postId], references: [id])
+  postId    String
+
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId  String?
+  replies   Comment[] @relation("CommentReplies")
+}
+
+model Vote {
+  id     String @id @default(cuid())
+  type   String // "UP" or "DOWN"
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+
+  @@unique([userId, postId])
+}
