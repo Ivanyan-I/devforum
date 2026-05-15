@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate --config ./prisma.config.ts && next build",
+    "build": "pnpm exec prisma generate --config ./prisma.config.ts && next build",
     "start": "next start",
     "lint": "eslint"
   },
