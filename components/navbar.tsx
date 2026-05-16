@@ -12,6 +12,15 @@ export default async function Navbar() {
           DevForum
         </Link>
 
+        <form method="GET" action="/search" className="hidden sm:flex">
+          <input
+            name="q"
+            type="text"
+            placeholder="Search..."
+            className="border rounded-md px-3 py-1.5 text-sm bg-background w-48"
+          />
+        </form>
+
         <div className="flex items-center gap-4">
           {session?.user ? (
             <>

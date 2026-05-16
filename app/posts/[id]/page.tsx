@@ -5,9 +5,25 @@ import prisma from "@/lib/prisma";
 import VoteButtons from "@/components/vote-buttons";
 import CommentForm from "@/components/comment-form";
 import DeletePostButton from "@/components/delete-post-button";
+import { Metadata } from "next";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const post = await prisma.post.findUnique({
+    where: { id },
+    select: { title: true, content: true },
+  });
+  if (!post) return { title: "Post not found — DevForum" };
+  return {
+    title: `${post.title} — DevForum`,
+    description: post.content.slice(0, 150),
+  };
 }
 
 export default async function PostPage({ params }: PostPageProps) {

@@ -2,9 +2,22 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { Metadata } from "next";
 
 interface TopicPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: TopicPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const topic = await prisma.topic.findUnique({ where: { slug } });
+  if (!topic) return { title: "Topic not found — DevForum" };
+  return {
+    title: `${topic.name} — DevForum`,
+    description: topic.description ?? `Discussions about ${topic.name}`,
+  };
 }
 
 export default async function TopicPage({ params }: TopicPageProps) {
