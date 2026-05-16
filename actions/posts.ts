@@ -126,3 +126,77 @@ export async function createComment(
   revalidatePath(`/posts/${postId}`);
   return null;
 }
+
+export type UpdatePostState = {
+  errors?: {
+    title?: string[];
+    content?: string[];
+  };
+  error?: string;
+} | null;
+
+export async function updatePost(
+  postId: string,
+  prevState: UpdatePostState,
+  formData: FormData,
+): Promise<UpdatePostState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "You must be signed in" };
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: { topic: true },
+  });
+
+  if (!post) return { error: "Post not found" };
+  if (post.authorId !== session.user.id) {
+    return { error: "You can only edit your own posts" };
+  }
+
+  const validated = z
+    .object({
+      title: z
+        .string()
+        .min(3, "Title must be at least 3 characters")
+        .max(100, "Title must be under 100 characters"),
+      content: z.string().min(10, "Content must be at least 10 characters"),
+    })
+    .safeParse({
+      title: formData.get("title"),
+      content: formData.get("content"),
+    });
+
+  if (!validated.success) {
+    return { errors: validated.error.flatten().fieldErrors };
+  }
+
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      title: validated.data.title,
+      content: validated.data.content,
+    },
+  });
+
+  revalidatePath(`/posts/${postId}`);
+  revalidatePath(`/topics/${post.topic.slug}`);
+  redirect(`/posts/${postId}`);
+}
+
+export async function deletePost(postId: string): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) return;
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: { topic: true },
+  });
+
+  if (!post) return;
+  if (post.authorId !== session.user.id) return;
+
+  await prisma.post.delete({ where: { id: postId } });
+
+  revalidatePath(`/topics/${post.topic.slug}`);
+  redirect(`/topics/${post.topic.slug}`);
+}

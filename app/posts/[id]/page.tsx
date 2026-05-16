@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import VoteButtons from "@/components/vote-buttons";
 import CommentForm from "@/components/comment-form";
+import DeletePostButton from "@/components/delete-post-button";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
@@ -58,6 +59,18 @@ export default async function PostPage({ params }: PostPageProps) {
             by {post.author.name} ·{" "}
             {new Date(post.createdAt).toLocaleDateString()}
           </p>
+          {/* Owner actions */}
+          {session?.user?.id === post.authorId && (
+            <div className="flex gap-2 shrink-0">
+              <Link
+                href={`/posts/${post.id}/edit`}
+                className="text-sm border rounded-md px-2 py-1 hover:bg-muted transition-colors"
+              >
+                Edit
+              </Link>
+              <DeletePostButton postId={post.id} />
+            </div>
+          )}
         </div>
 
         <p className="text-sm leading-relaxed whitespace-pre-wrap">

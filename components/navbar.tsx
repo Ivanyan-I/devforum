@@ -21,6 +21,9 @@ export default async function Navbar() {
               <Link href="/posts/create" className="text-sm font-medium">
                 + New Post
               </Link>
+              <Link href="/dashboard" className="text-sm font-medium">
+                Dashboard
+              </Link>
               <SignOutButton />
             </>
           ) : (
