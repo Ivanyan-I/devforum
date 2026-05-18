@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 const CreatePostSchema = z.object({
@@ -60,7 +60,9 @@ export async function createPost(
     include: { topic: true },
   });
 
+  updateTag("posts"); // immediately expires search cache
   revalidatePath(`/topics/${post.topic.slug}`);
+
   redirect(`/posts/${post.id}`);
 }
 
@@ -82,19 +84,17 @@ export async function votePost(
       data: { userId: session.user.id, postId, type: voteType },
     });
   } else if (existingVote.type === voteType) {
-    // clicking same vote type = undo
     await prisma.vote.delete({
       where: { userId_postId: { userId: session.user.id, postId } },
     });
   } else {
-    // switching vote direction
     await prisma.vote.update({
       where: { userId_postId: { userId: session.user.id, postId } },
       data: { type: voteType },
     });
   }
 
-  revalidatePath(`/posts/${postId}`);
+  revalidateTag("posts", "max");
 }
 
 export type CreateCommentState = {

@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { auth } from "@/auth";
-import { SignInButton, SignOutButton } from "@/components/auth-buttons";
+import NavAuth from "@/components/nav-auth";
 
-export default async function Navbar() {
-  const session = await auth();
-
+export default function Navbar() {
   return (
     <nav className="border-b px-4 py-3">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -20,25 +17,7 @@ export default async function Navbar() {
             className="border rounded-md px-3 py-1.5 text-sm bg-background w-48"
           />
         </form>
-
-        <div className="flex items-center gap-4">
-          {session?.user ? (
-            <>
-              <span className="text-sm text-muted-foreground">
-                {session.user.name}
-              </span>
-              <Link href="/posts/create" className="text-sm font-medium">
-                + New Post
-              </Link>
-              <Link href="/dashboard" className="text-sm font-medium">
-                Dashboard
-              </Link>
-              <SignOutButton />
-            </>
-          ) : (
-            <SignInButton />
-          )}
-        </div>
+        <NavAuth />
       </div>
     </nav>
   );

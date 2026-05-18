@@ -1,12 +1,22 @@
 import Link from "next/link";
-import { auth } from "@/auth";
+import { cacheTag, cacheLife } from "next/cache";
 import prisma from "@/lib/prisma";
+import WelcomeMessage from "@/components/welcome-message";
 
-export default async function HomePage() {
-  const session = await auth();
-  const topics = await prisma.topic.findMany({
+// Topics are the same for every user and every visit.
+// Cache them. Invalidate only when a topic is added.
+async function getTopics() {
+  "use cache";
+  cacheTag("topics");
+  cacheLife("hours");
+
+  return prisma.topic.findMany({
     orderBy: { name: "asc" },
   });
+}
+
+export default async function HomePage() {
+  const topics = await getTopics();
 
   return (
     <div>
@@ -17,15 +27,7 @@ export default async function HomePage() {
         </p>
       </div>
 
-      {session?.user ? (
-        <p className="text-sm text-muted-foreground mb-8">
-          Welcome back, <strong>{session.user.name}</strong>
-        </p>
-      ) : (
-        <p className="text-sm text-muted-foreground mb-8">
-          Sign in to create posts and join the discussion.
-        </p>
-      )}
+      <WelcomeMessage />
 
       <h2 className="text-xl font-semibold mb-4">Browse Topics</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
