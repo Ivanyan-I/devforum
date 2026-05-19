@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $(pwd) && pnpm tsc --noEmit 2>&1 | head -20"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo $TOOL_INPUT | python3 -c \"import sys,json; cmd=json.load(sys.stdin).get('command',''); exit(2) if any(x in cmd for x in ['rm -rf', 'git push --force', 'DROP TABLE']) else exit(0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
