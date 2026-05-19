@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useRef, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { createComment } from "@/actions/posts";
 import type { CreateCommentState } from "@/actions/posts";
@@ -15,34 +15,52 @@ function SubmitButton() {
   );
 }
 
-export default function CommentForm({ postId }: { postId: string }) {
+export default function CommentForm({
+  postId,
+  parentId = null,
+  onCancel,
+}: {
+  postId: string;
+  parentId?: string | null;
+  onCancel?: () => void;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
-  const boundAction = createComment.bind(null, postId);
+  const boundAction = createComment.bind(null, postId, parentId);
   const [state, action] = useActionState<CreateCommentState, FormData>(
     boundAction,
     null,
   );
 
+  // Reset form when comment successfully posted (state becomes null)
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    if (prevStateRef.current !== null && state === null) {
+      formRef.current?.reset();
+      onCancel?.();
+    }
+    prevStateRef.current = state;
+  }, [state, onCancel]);
+
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        await action(formData);
-        formRef.current?.reset();
-      }}
-      className="space-y-3"
-    >
+    <form ref={formRef} action={action} className="space-y-3">
       <textarea
         name="content"
         rows={3}
-        placeholder="Write a comment..."
+        placeholder={parentId ? "Write a reply..." : "Write a comment..."}
         className="w-full border rounded-md px-3 py-2 text-sm bg-background resize-none"
       />
       {state?.errors?.content && (
         <p className="text-xs text-red-500">{state.errors.content[0]}</p>
       )}
       {state?.error && <p className="text-xs text-red-500">{state.error}</p>}
-      <SubmitButton />
+      <div className="flex gap-2">
+        <SubmitButton />
+        {onCancel && (
+          <Button type="button" size="sm" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

@@ -43,6 +43,9 @@ model Post {
 
   comments  Comment[]
   votes     Vote[]
+
+  @@index([topicId, createdAt(sort: Desc)])
+  @@index([authorId, createdAt(sort: Desc)])
 }
 
 model Comment {
@@ -60,6 +63,8 @@ model Comment {
   parentId  String?
 
   replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt(sort: Desc)])
 }
 
 model Vote {

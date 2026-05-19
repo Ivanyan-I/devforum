@@ -104,6 +104,7 @@ export type CreateCommentState = {
 
 export async function createComment(
   postId: string,
+  parentId: string | null,
   prevState: CreateCommentState,
   formData: FormData,
 ): Promise<CreateCommentState> {
@@ -120,6 +121,7 @@ export async function createComment(
       content: content.trim(),
       authorId: session.user.id,
       postId,
+      parentId,
     },
   });
 

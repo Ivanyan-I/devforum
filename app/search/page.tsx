@@ -22,8 +22,8 @@ export async function generateMetadata({
 // of the cache key — same behavior as before, cleaner syntax.
 async function searchPosts(query: string) {
   "use cache";
-  cacheTag("posts"); // ← tag for invalidation
-  cacheLife("minutes"); // ← cache for a few minutes, then revalidate
+  cacheTag("posts"); //  tag for invalidation
+  cacheLife("minutes"); // cache for a few hours, then revalidate
 
   return prisma.post.findMany({
     where: {

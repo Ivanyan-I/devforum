@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import VoteButtons from "@/components/vote-buttons";
 import CommentForm from "@/components/comment-form";
+import Comment from "@/components/comment";
 import DeletePostButton from "@/components/delete-post-button";
 import { Metadata } from "next";
 
@@ -39,7 +40,37 @@ export default async function PostPage({ params }: PostPageProps) {
       comments: {
         where: { parentId: null },
         orderBy: { createdAt: "desc" },
-        include: { author: true },
+        include: {
+          author: true,
+          replies: {
+            orderBy: { createdAt: "asc" },
+            include: {
+              author: true,
+              replies: {
+                orderBy: { createdAt: "asc" },
+                include: {
+                  author: true,
+                  replies: {
+                    orderBy: { createdAt: "asc" },
+                    include: {
+                      author: true,
+                      replies: {
+                        orderBy: { createdAt: "asc" },
+                        include: {
+                          author: true,
+                          replies: {
+                            orderBy: { createdAt: "asc" },
+                            include: { author: true },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
   });
@@ -115,15 +146,14 @@ export default async function PostPage({ params }: PostPageProps) {
             No comments yet. Be the first.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {post.comments.map((comment) => (
-              <div key={comment.id} className="border rounded-lg p-4">
-                <div className="text-sm font-medium">{comment.author.name}</div>
-                <div className="text-xs text-muted-foreground mb-2">
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </div>
-                <p className="text-sm">{comment.content}</p>
-              </div>
+              <Comment
+                key={comment.id}
+                comment={comment}
+                postId={post.id}
+                isSignedIn={!!session?.user}
+              />
             ))}
           </div>
         )}
