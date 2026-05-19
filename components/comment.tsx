@@ -48,20 +48,21 @@ export default function Comment({
 
         <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
 
-        {isSignedIn && depth < maxDepth && (
+        {isSignedIn && depth < maxDepth && !showReplyForm && (
           <Button
             variant="ghost"
             size="sm"
             className="text-xs h-7 px-2"
-            onClick={() => setShowReplyForm(!showReplyForm)}
+            onClick={() => setShowReplyForm(true)}
           >
-            {showReplyForm ? "Cancel" : "Reply"}
+            Reply
           </Button>
         )}
 
         {showReplyForm && (
           <div className="mt-3">
             <CommentForm
+              key={`reply-${comment.id}`}
               postId={postId}
               parentId={comment.id}
               onCancel={handleCancelReply}

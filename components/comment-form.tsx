@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useEffect } from "react";
+import { useActionState, useRef, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { createComment } from "@/actions/posts";
 import type { CreateCommentState } from "@/actions/posts";
@@ -40,27 +40,37 @@ export default function CommentForm({
   onCancel?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const boundAction = createComment.bind(null, postId, parentId);
   const [state, action] = useActionState<CreateCommentState, FormData>(
     boundAction,
     null,
   );
 
-  // Reset form when comment successfully posted (state becomes null after an error/loading state)
-  const prevStateRef = useRef(state);
+  const onCancelRef = useRef(onCancel);
+
+  // Keep onCancelRef updated
   useEffect(() => {
-    // Check if we just successfully submitted (went from non-null to null)
-    if (prevStateRef.current !== null && state === null) {
+    onCancelRef.current = onCancel;
+  }, [onCancel]);
+
+  // Close form on successful submission
+  useEffect(() => {
+    if (hasSubmitted && state === null) {
       formRef.current?.reset();
-      if (onCancel) {
-        onCancel();
+      if (onCancelRef.current) {
+        onCancelRef.current();
       }
     }
-    prevStateRef.current = state;
-  }, [state, onCancel]);
+  }, [state, hasSubmitted]);
+
+  const handleSubmit = (formData: FormData) => {
+    setHasSubmitted(true);
+    action(formData);
+  };
 
   return (
-    <form ref={formRef} action={action} className="space-y-3">
+    <form ref={formRef} action={handleSubmit} className="space-y-3">
       <textarea
         name="content"
         rows={3}
