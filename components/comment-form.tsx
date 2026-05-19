@@ -15,6 +15,21 @@ function SubmitButton() {
   );
 }
 
+function CancelButton({ onCancel }: { onCancel: () => void }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      onClick={onCancel}
+      disabled={pending}
+    >
+      Cancel
+    </Button>
+  );
+}
+
 export default function CommentForm({
   postId,
   parentId = null,
@@ -55,11 +70,7 @@ export default function CommentForm({
       {state?.error && <p className="text-xs text-red-500">{state.error}</p>}
       <div className="flex gap-2">
         <SubmitButton />
-        {onCancel && (
-          <Button type="button" size="sm" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
+        {onCancel && <CancelButton onCancel={onCancel} />}
       </div>
     </form>
   );
