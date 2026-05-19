@@ -28,7 +28,7 @@ export default function Comment({
   depth = 0,
 }: CommentProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const maxDepth = 5;
+  const maxDepth = 4; // Allow 5 levels total (depths 0-4)
 
   return (
     <div className={depth > 0 ? "ml-6 mt-3 border-l-2 pl-4" : ""}>
@@ -66,7 +66,7 @@ export default function Comment({
         )}
       </div>
 
-      {comment.replies.length > 0 && (
+      {comment.replies && comment.replies.length > 0 && (
         <div className="space-y-3 mt-3">
           {comment.replies.map((reply) => (
             <Comment

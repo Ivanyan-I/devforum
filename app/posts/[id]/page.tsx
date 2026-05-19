@@ -56,13 +56,7 @@ export default async function PostPage({ params }: PostPageProps) {
                       author: true,
                       replies: {
                         orderBy: { createdAt: "asc" },
-                        include: {
-                          author: true,
-                          replies: {
-                            orderBy: { createdAt: "asc" },
-                            include: { author: true },
-                          },
-                        },
+                        include: { author: true },
                       },
                     },
                   },
