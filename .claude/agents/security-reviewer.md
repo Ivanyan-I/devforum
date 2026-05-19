@@ -2,7 +2,7 @@
 name: security-reviewer
 description: Reviews DevForum code for security vulnerabilities. Use proactively before any auth or data mutation changes.
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: sonnet
 permissionMode: plan
 ---
 

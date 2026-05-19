@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import CommentForm from "@/components/comment-form";
 
@@ -29,6 +29,10 @@ export default function Comment({
 }: CommentProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const maxDepth = 4; // Allow 5 levels total (depths 0-4)
+
+  const handleCancelReply = useCallback(() => {
+    setShowReplyForm(false);
+  }, []);
 
   return (
     <div className={depth > 0 ? "ml-6 mt-3 border-l-2 pl-4" : ""}>
@@ -60,7 +64,7 @@ export default function Comment({
             <CommentForm
               postId={postId}
               parentId={comment.id}
-              onCancel={() => setShowReplyForm(false)}
+              onCancel={handleCancelReply}
             />
           </div>
         )}

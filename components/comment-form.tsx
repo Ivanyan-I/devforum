@@ -46,12 +46,15 @@ export default function CommentForm({
     null,
   );
 
-  // Reset form when comment successfully posted (state becomes null)
+  // Reset form when comment successfully posted (state becomes null after an error/loading state)
   const prevStateRef = useRef(state);
   useEffect(() => {
+    // Check if we just successfully submitted (went from non-null to null)
     if (prevStateRef.current !== null && state === null) {
       formRef.current?.reset();
-      onCancel?.();
+      if (onCancel) {
+        onCancel();
+      }
     }
     prevStateRef.current = state;
   }, [state, onCancel]);
